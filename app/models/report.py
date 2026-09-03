@@ -1,15 +1,19 @@
-from datetime import datetime
+from datetime import date, datetime
 
-from sqlmodel import Field, SQLModel
+from sqlalchemy import JSON, Date, DateTime, Integer, String, Text, func
+from sqlalchemy.orm import Mapped, mapped_column
+
+from app.db.base import Base
 
 
-class AnalysisReport(SQLModel, table=True):
-    __tablename__ = "analysis_reports"
+class Report(Base):
+    __tablename__ = "reports"
 
-    id: int | None = Field(default=None, primary_key=True)
-    title: str
-    platform: str = Field(index=True)
-    report_date: str = Field(index=True)
-    format: str = Field(default="markdown")
-    content: str = Field(default="")
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    period_start: Mapped[date] = mapped_column(Date)
+    period_end: Mapped[date] = mapped_column(Date)
+    content_md: Mapped[str] = mapped_column(Text, default="")
+    content_html: Mapped[str] = mapped_column(Text, default="")
+    summary: Mapped[dict] = mapped_column(JSON, default=dict)
+    status: Mapped[str] = mapped_column(String(32), default="completed")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

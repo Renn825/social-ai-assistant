@@ -1,7 +1,5 @@
-from app.models.analysis_job import AnalysisJob
-from app.models.comment import PostComment
-from app.models.post import CrawlPost
-from app.models.report import AnalysisReport
-from app.models.task import CrawlTask
+from app.models.social import SocialComment, SocialPost
+from app.models.job import AnalysisJob
+from app.models.report import Report
 
-__all__ = ["CrawlPost", "PostComment", "CrawlTask", "AnalysisReport", "AnalysisJob"]
+__all__ = ["SocialPost", "SocialComment", "AnalysisJob", "Report"]
