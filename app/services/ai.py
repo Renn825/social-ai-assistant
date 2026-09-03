@@ -9,9 +9,9 @@ from app.core.config import get_settings
 class LLMClient:
     def __init__(self) -> None:
         settings = get_settings()
-        self.base_url = settings.llm_base_url.rstrip("/")
-        self.api_key = settings.llm_api_key
-        self.model = settings.llm_model
+        self.base_url = settings.openai_base_url.rstrip("/")
+        self.api_key = settings.openai_api_key
+        self.model = settings.openai_model
 
     @property
     def enabled(self) -> bool:

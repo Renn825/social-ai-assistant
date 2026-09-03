@@ -11,9 +11,9 @@ class Settings(BaseSettings):
     database_url: str = "postgresql+psycopg://social:social@localhost:5432/social"
     cors_origins: list[str] = ["*"]
 
-    llm_base_url: str = "https://api.deepseek.com/v1"
-    llm_api_key: str = "sk-your-key"
-    llm_model: str = "deepseek-chat"
+    openai_base_url: str = "https://api.deepseek.com/v1"
+    openai_api_key: str = "sk-your-key"
+    openai_model: str = "deepseek-chat"
 
     media_crawler_dir: str = ""
     mock_crawler: bool = True

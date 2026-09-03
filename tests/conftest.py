@@ -2,7 +2,7 @@ import os
 import tempfile
 
 os.environ["API_KEY"] = "test-api-key"
-os.environ["LLM_API_KEY"] = ""
+os.environ["OPENAI_API_KEY"] = ""
 os.environ["MOCK_CRAWLER"] = "true"
 os.environ["SCHEDULE_ENABLED"] = "false"
 
