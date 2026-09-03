@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any
 
 from sqlalchemy import JSON, Column
-from sqlmodel import Field, SQLModel
+from sqlmodel import Field, Relationship, SQLModel
 
 
 class CrawlPost(SQLModel, table=True):
@@ -21,3 +21,4 @@ class CrawlPost(SQLModel, table=True):
     collected_at: datetime = Field(default_factory=datetime.utcnow, index=True)
     content_hash: str = Field(default="", index=True)
 
+    comments: list["PostComment"] = Relationship(back_populates="post")

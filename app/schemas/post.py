@@ -3,6 +3,8 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
+from app.schemas.comment import PostCommentRead
+
 
 class CollectRequest(BaseModel):
     platform: str = Field(default="xiaohongshu", examples=["xiaohongshu", "douyin"])
@@ -22,6 +24,6 @@ class CrawlPostRead(BaseModel):
     metrics: dict[str, Any]
     published_at: datetime | None
     collected_at: datetime
+    comments: list[PostCommentRead] = []
 
     model_config = {"from_attributes": True}
-

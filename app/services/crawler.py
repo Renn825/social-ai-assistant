@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from datetime import datetime
 import hashlib
 import subprocess
@@ -19,6 +19,7 @@ class CrawledPost:
     url: str
     tags: list[str]
     metrics: dict[str, Any]
+    comments: list[dict[str, Any]] = field(default_factory=list)
 
 
 def _content_hash(platform: str, title: str, content: str) -> str:
@@ -39,6 +40,16 @@ def _mock_posts(request: CollectRequest) -> list[CrawledPost]:
             url=f"https://example.com/{platform}/{index}",
             tags=[keyword, "AI", "效率工具"],
             metrics={"likes": 100 + index, "comments": 10 + index, "shares": 5 + index},
+            comments=[
+                {
+                    "content": f"评论 {index}-1：这个内容很有帮助。",
+                    "sentiment": "positive",
+                },
+                {
+                    "content": f"评论 {index}-2：希望有更多实操细节。",
+                    "sentiment": "neutral",
+                },
+            ],
         )
         for index in range(1, request.limit + 1)
     ]
@@ -93,4 +104,3 @@ def to_dict(post: CrawledPost) -> dict[str, Any]:
         post.platform, post.title, post.content
     )
     return payload
-

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, BackgroundTasks, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from sqlmodel import Session, select
 
 from app.core.database import get_session
@@ -59,6 +59,14 @@ def list_posts(
     return list(session.exec(statement).all())
 
 
+@router.get("/{post_id}", response_model=CrawlPostRead)
+def get_post(post_id: int, session: Session = Depends(get_session)) -> CrawlPost:
+    post = session.get(CrawlPost, post_id)
+    if post is None:
+        raise HTTPException(status_code=404, detail="post not found")
+    return post
+
+
 @router.post("/collect", response_model=CrawlTaskRead)
 def collect(
     payload: CollectRequest,
@@ -75,4 +83,3 @@ def collect(
     session.refresh(task)
     background_tasks.add_task(_run_collection, task.id)
     return task
-

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.api.routes import analysis, assistant, health, posts, reports, tasks
+from app.api.routes import analysis, assistant, health, mock_data, posts, reports, tasks
 from app.auth import verify_api_key
 
 api_router = APIRouter()
@@ -12,6 +12,7 @@ protected_routers = [
     analysis.router,
     reports.router,
     assistant.router,
+    mock_data.router,
 ]
 
 for router in protected_routers:

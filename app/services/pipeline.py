@@ -1,7 +1,9 @@
 from collections.abc import Iterable
+from datetime import datetime
 
 from sqlmodel import Session, select
 
+from app.models.comment import PostComment
 from app.models.post import CrawlPost
 from app.services.crawler import CrawledPost, to_dict
 
@@ -28,6 +30,7 @@ def store_posts(
 
     for post in cleaned:
         payload = to_dict(post)
+        comments = payload.pop("comments", [])
         existing = session.exec(
             select(CrawlPost).where(CrawlPost.content_hash == payload["content_hash"])
         ).first()
@@ -35,9 +38,20 @@ def store_posts(
             skipped += 1
             continue
 
-        session.add(CrawlPost(**payload))
+        post_model = CrawlPost(**payload)
+        session.add(post_model)
+        session.flush()
+
+        for comment in comments:
+            session.add(
+                PostComment(
+                    post_id=post_model.id,
+                    content=comment.get("content", ""),
+                    sentiment=comment.get("sentiment"),
+                    published_at=datetime.utcnow(),
+                )
+            )
         inserted += 1
 
     session.commit()
     return inserted, skipped
-
