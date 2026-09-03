@@ -51,12 +51,21 @@ def _run_collection(task_id: int) -> None:
 @router.get("", response_model=list[CrawlPostRead])
 def list_posts(
     platform: str | None = None,
-    limit: int = 20,
+    start_date: str | None = None,
+    end_date: str | None = None,
+    page: int = 1,
+    page_size: int = 20,
     session: Session = Depends(get_session),
 ) -> list[CrawlPost]:
-    statement = select(CrawlPost).order_by(CrawlPost.collected_at.desc()).limit(limit)
+    statement = select(CrawlPost).order_by(CrawlPost.collected_at.desc())
     if platform:
         statement = statement.where(CrawlPost.platform == platform)
+    if start_date:
+        statement = statement.where(CrawlPost.published_at >= datetime.fromisoformat(start_date))
+    if end_date:
+        statement = statement.where(CrawlPost.published_at <= datetime.fromisoformat(end_date))
+    offset = (max(page, 1) - 1) * max(page_size, 1)
+    statement = statement.offset(offset).limit(max(page_size, 1))
     return list(session.exec(statement).all())
 
 
