@@ -31,12 +31,5 @@ def test_analysis_job_completes(client, api_headers):
 
     assert job["status"] == "completed"
     assert job["result"] is not None
-    assert len(job["result"]["items"]) == 2
-    assert set(job["result"]["items"][0]) >= {
-        "summary",
-        "sentiment",
-        "keywords",
-        "topics",
-        "content_suggestions",
-        "copy_suggestions",
-    }
+    assert set(job["result"]) >= {"summaries", "sentiments", "topics", "insights"}
+    assert len(job["result"]["summaries"]) == 2
