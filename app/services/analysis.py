@@ -128,7 +128,7 @@ def create_analysis_job(
     job = AnalysisJob(
         status="pending",
         note_ids=note_ids,
-        model=settings.llm_model,
+        model=settings.openai_model,
     )
     session.add(job)
     session.commit()
@@ -180,3 +180,4 @@ def run_analysis_job(job_id: int) -> None:
             job.completed_at = datetime.utcnow()
             session.add(job)
             session.commit()
+
