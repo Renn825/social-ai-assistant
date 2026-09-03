@@ -108,15 +108,15 @@ def _build_insights(state: AnalysisState) -> AnalysisState:
 
 def _build_graph():
     graph = StateGraph(AnalysisState)
-    graph.add_node("summarize", _summarize_posts)
-    graph.add_node("sentiment", _analyze_comments)
-    graph.add_node("topics", _extract_topics)
-    graph.add_node("insights", _build_insights)
-    graph.add_edge(START, "summarize")
-    graph.add_edge("summarize", "sentiment")
-    graph.add_edge("sentiment", "topics")
-    graph.add_edge("topics", "insights")
-    graph.add_edge("insights", END)
+    graph.add_node("summarize_node", _summarize_posts)
+    graph.add_node("sentiment_node", _analyze_comments)
+    graph.add_node("topics_node", _extract_topics)
+    graph.add_node("insights_node", _build_insights)
+    graph.add_edge(START, "summarize_node")
+    graph.add_edge("summarize_node", "sentiment_node")
+    graph.add_edge("sentiment_node", "topics_node")
+    graph.add_edge("topics_node", "insights_node")
+    graph.add_edge("insights_node", END)
     return graph.compile()
 
 
@@ -180,4 +180,5 @@ def run_analysis_job(job_id: int) -> None:
             job.completed_at = datetime.utcnow()
             session.add(job)
             session.commit()
+
 
