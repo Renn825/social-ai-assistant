@@ -1,0 +1,5 @@
+platform,post_id,title,content,author,url,tags,likes,favorites,shares,published_at
+xiaohongshu,xhs-001,AI 自动整理小红书选题,分享如何用 AI 快速整理一周的小红书选题并生成内容日历,运营小A,https://example.com/xhs/001,AI;选题;效率,120,80,15,2026-08-25T10:00:00
+xiaohongshu,xhs-002,AI 客服知识库搭建经验,介绍如何用 RAG 搭建小红书客服知识库并降低重复回复,运营小B,https://example.com/xhs/002,RAG;客服;知识库,95,60,10,2026-08-26T11:30:00
+xiaohongshu,xhs-003,用 AI 做评论分析和选题建议,通过评论情感分析找到用户痛点并生成选题建议,运营小C,https://example.com/xhs/003,情感分析;选题;数据分析,210,120,30,2026-08-27T09:15:00
+douyin,dy-001,AI 自动生成短视频口播脚本,分享如何用 AI 根据商品卖点生成抖音口播脚本,内容小李,https://example.com/dy/001,AI;口播;脚本,180,90,22,2026-08-28T14:00:00

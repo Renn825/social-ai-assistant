@@ -1,12 +1,13 @@
 from fastapi import APIRouter, Depends
 
-from app.api.routes import analysis, assistant, health, mock_data, posts, reports, tasks
+from app.api.routes import analysis, assistant, health, imports, mock_data, posts, reports, tasks
 from app.auth import verify_api_key
 
 api_router = APIRouter()
 api_router.include_router(health.router)
 
 protected_routers = [
+    imports.router,
     posts.router,
     tasks.router,
     analysis.router,
