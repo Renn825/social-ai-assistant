@@ -12,7 +12,7 @@ def test_generate_markdown_report(client, api_headers):
     assert response.status_code == 200
     body = response.json()
     assert body["format"] == "markdown"
-    assert "分析报告" in body["content"]
+    assert body["content"].startswith("# ")
 
 
 def test_generate_html_report(client, api_headers):

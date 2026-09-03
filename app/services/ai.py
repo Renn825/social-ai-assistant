@@ -86,7 +86,9 @@ class LLMClient:
                 "summary": "这是未配置 LLM API Key 时的本地模拟结果。",
                 "sentiment": "neutral",
                 "keywords": ["AI", "效率", "自动化"],
+                "topics": ["效率工具", "自动化"],
+                "content_suggestions": ["增加真实案例", "制作实操教程"],
+                "copy_suggestions": ["适合新手收藏", "可直接复用的效率提示词"],
             },
             ensure_ascii=False,
         )
-
