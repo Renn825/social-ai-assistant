@@ -8,7 +8,7 @@ class Settings(BaseSettings):
     app_name: str = "social-ai-assistant"
     api_prefix: str = "/api/v1"
     api_key: str = "dev-api-key"
-    database_url: str = "postgresql+psycopg://social:social@localhost:5432/social"
+    database_url: str = "sqlite:///./data/app.db"
     cors_origins: list[str] = ["*"]
 
     openai_base_url: str = "https://api.deepseek.com/v1"
