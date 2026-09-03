@@ -1,10 +1,13 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlmodel import Session
 
 from app.core.database import get_session
+from app.models.analysis_job import AnalysisJob
+from app.schemas.analysis_job import AnalysisJobCreate, AnalysisJobRead
 from app.schemas.report import ReportRequest
 from app.services.ai import LLMClient
+from app.services.analysis import create_analysis_job, run_analysis_job
 from app.services.report import _build_report_prompt, _load_posts
 
 router = APIRouter(prefix="/analysis", tags=["analysis"])
@@ -38,8 +41,8 @@ def generate_copy(
     payload: CopyRequest,
 ) -> dict:
     llm = LLMClient()
-    topic = payload.get("topic", "AI 效率工具")
-    style = payload.get("style", "小红书")
+    topic = payload.topic
+    style = payload.style
     return llm.complete_json(
         [
             {
@@ -52,3 +55,22 @@ def generate_copy(
             },
         ]
     )
+
+
+@router.post("/jobs", response_model=AnalysisJobRead)
+def create_job(
+    payload: AnalysisJobCreate,
+    background_tasks: BackgroundTasks,
+    session: Session = Depends(get_session),
+) -> AnalysisJob:
+    job = create_analysis_job(session, payload.note_ids)
+    background_tasks.add_task(run_analysis_job, job.id)
+    return job
+
+
+@router.get("/jobs/{job_id}", response_model=AnalysisJobRead)
+def get_job(job_id: int, session: Session = Depends(get_session)) -> AnalysisJob:
+    job = session.get(AnalysisJob, job_id)
+    if job is None:
+        raise HTTPException(status_code=404, detail="analysis job not found")
+    return job
