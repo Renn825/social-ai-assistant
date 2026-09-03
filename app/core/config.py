@@ -6,6 +6,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     app_name: str = "Social AI Assistant"
     api_prefix: str = "/api/v1"
+    api_key: str = ""
     database_url: str = "sqlite:///./data/app.db"
     cors_origins: list[str] = ["*"]
 
@@ -28,4 +29,3 @@ class Settings(BaseSettings):
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
-
