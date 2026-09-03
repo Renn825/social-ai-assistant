@@ -1,37 +1,123 @@
 from datetime import datetime
+from typing import Any, TypedDict
 
+from langgraph.graph import END, START, StateGraph
 from sqlmodel import Session, select
 
 from app.core.config import get_settings
 from app.models.analysis_job import AnalysisJob
 from app.models.post import CrawlPost
 from app.services.ai import LLMClient
+from app.services.prompts import load_prompt
 
 
-ANALYSIS_SYSTEM_PROMPT = """你是社媒内容分析助手。请分析用户提供的笔记和评论，并只输出 JSON 对象。
-JSON 字段必须包含：
-- summary: 内容摘要
-- sentiment: positive、neutral、negative 之一
-- keywords: 关键词数组
-- topics: 主题标签数组
-- content_suggestions: 内容选题建议数组
-- copy_suggestions: 可复用文案建议数组
-"""
+class AnalysisState(TypedDict, total=False):
+    posts: list[dict[str, Any]]
+    summaries: list[dict[str, Any]]
+    sentiments: list[dict[str, Any]]
+    topics: dict[str, Any]
+    insights: dict[str, Any]
+    error: str | None
 
 
-def _build_user_prompt(post: CrawlPost) -> str:
-    comments = "\n".join(
-        f"- {comment.content}" for comment in post.comments
+def _post_dict(post: CrawlPost) -> dict[str, Any]:
+    return {
+        "id": post.id,
+        "platform": post.platform,
+        "title": post.title,
+        "content": post.content,
+        "metrics": post.metrics,
+        "comments": [comment.content for comment in post.comments],
+    }
+
+
+def _summarize_posts(state: AnalysisState) -> AnalysisState:
+    llm = LLMClient()
+    system = load_prompt("post_summary.md")
+    summaries: list[dict[str, Any]] = []
+    for post in state["posts"]:
+        user = (
+            f"平台：{post.get('platform')}\n"
+            f"标题：{post.get('title')}\n"
+            f"正文：{post.get('content')}\n"
+            f"指标：{post.get('metrics')}\n"
+        )
+        result = llm.complete_json(
+            [
+                {"role": "system", "content": system},
+                {"role": "user", "content": user},
+            ]
+        )
+        result["post_id"] = post.get("id")
+        result["title"] = post.get("title")
+        summaries.append(result)
+    return {"summaries": summaries}
+
+
+def _analyze_comments(state: AnalysisState) -> AnalysisState:
+    llm = LLMClient()
+    system = load_prompt("sentiment_analysis.md")
+    sentiments: list[dict[str, Any]] = []
+    for post in state["posts"]:
+        for index, comment in enumerate(post.get("comments", [])):
+            result = llm.complete_json(
+                [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": comment},
+                ]
+            )
+            result["post_id"] = post.get("id")
+            result["comment_index"] = index
+            sentiments.append(result)
+    return {"sentiments": sentiments}
+
+
+def _extract_topics(state: AnalysisState) -> AnalysisState:
+    llm = LLMClient()
+    system = load_prompt("topic_extraction.md")
+    samples = "\n".join(
+        f"- {item.get('title')}: {item.get('summary', '')}" for item in state.get("summaries", [])
     )
-    return f"""平台：{post.platform}
-标题：{post.title}
-正文：{post.content}
-点赞数：{post.metrics.get('likes', 0)}
-收藏数：{post.metrics.get('favorites', 0)}
+    user = f"帖子摘要样本：\n{samples or '暂无数据'}"
+    topics = llm.complete_json(
+        [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+    )
+    return {"topics": topics}
 
-评论：
-{comments}
-"""
+
+def _build_insights(state: AnalysisState) -> AnalysisState:
+    llm = LLMClient()
+    system = load_prompt("weekly_report.md")
+    user = (
+        "分析结果：\n"
+        f"摘要：{state.get('summaries', [])}\n"
+        f"情感：{state.get('sentiments', [])}\n"
+        f"主题：{state.get('topics', {})}\n"
+    )
+    insights = llm.complete_json(
+        [
+            {"role": "system", "content": system},
+            {"role": "user", "content": user},
+        ]
+    )
+    return {"insights": insights}
+
+
+def _build_graph():
+    graph = StateGraph(AnalysisState)
+    graph.add_node("summarize", _summarize_posts)
+    graph.add_node("sentiment", _analyze_comments)
+    graph.add_node("topics", _extract_topics)
+    graph.add_node("insights", _build_insights)
+    graph.add_edge(START, "summarize")
+    graph.add_edge("summarize", "sentiment")
+    graph.add_edge("sentiment", "topics")
+    graph.add_edge("topics", "insights")
+    graph.add_edge("insights", END)
+    return graph.compile()
 
 
 def create_analysis_job(
@@ -75,21 +161,16 @@ def run_analysis_job(job_id: int) -> None:
             return
 
         try:
-            llm = LLMClient()
-            items = []
-            for post in posts:
-                data = llm.complete_json(
-                    [
-                        {"role": "system", "content": ANALYSIS_SYSTEM_PROMPT},
-                        {"role": "user", "content": _build_user_prompt(post)},
-                    ]
-                )
-                data["note_id"] = post.id
-                data["title"] = post.title
-                data["platform"] = post.platform
-                items.append(data)
-
-            job.result = {"items": items}
+            settings = get_settings()
+            state_posts = [_post_dict(post) for post in posts[: settings.analysis_max_items]]
+            graph = _build_graph()
+            result = graph.invoke({"posts": state_posts, "error": None})
+            job.result = {
+                "summaries": result.get("summaries", []),
+                "sentiments": result.get("sentiments", []),
+                "topics": result.get("topics", {}),
+                "insights": result.get("insights", {}),
+            }
             job.status = "completed"
             job.error = None
         except Exception as exc:  # noqa: BLE001 - task boundary

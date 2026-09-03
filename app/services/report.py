@@ -1,13 +1,16 @@
 import json
 from datetime import date, datetime
+from pathlib import Path
 from typing import Any
 
 from sqlmodel import Session, select
 
+from app.core.config import get_settings
 from app.models.post import CrawlPost
 from app.models.report import AnalysisReport
 from app.schemas.report import ReportRequest
 from app.services.ai import LLMClient
+from app.services.prompts import load_prompt
 
 
 def _load_posts(session: Session, platform: str, limit: int = 50) -> list[CrawlPost]:
@@ -21,9 +24,7 @@ def _load_posts(session: Session, platform: str, limit: int = 50) -> list[CrawlP
     )
 
 
-def _build_report_prompt(
-    posts: list[CrawlPost], request: ReportRequest
-) -> str:
+def _build_report_prompt(posts: list[CrawlPost], request: ReportRequest) -> str:
     samples = "\n".join(
         f"- {post.title}: {post.content[:120]}" for post in posts[:20]
     )
@@ -37,17 +38,9 @@ def _build_report_prompt(
 """.strip()
 
 
-def _render_markdown(
-    data: dict[str, Any],
-    platform: str,
-    generated_at: datetime,
-) -> str:
-    highlights = "\n".join(
-        f"- {item}" for item in data.get("highlights", [])
-    )
-    suggestions = "\n".join(
-        f"- {item}" for item in data.get("suggestions", [])
-    )
+def _render_markdown(data: dict[str, Any], platform: str, generated_at: datetime) -> str:
+    highlights = "\n".join(f"- {item}" for item in data.get("highlights", []))
+    suggestions = "\n".join(f"- {item}" for item in data.get("suggestions", []))
     return f"""# {data.get('title', platform + ' 分析报告')}
 
 生成时间：{generated_at.isoformat()}
@@ -66,17 +59,9 @@ def _render_markdown(
 """
 
 
-def _render_html(
-    data: dict[str, Any],
-    platform: str,
-    generated_at: datetime,
-) -> str:
-    highlights = "".join(
-        f"<li>{item}</li>" for item in data.get("highlights", [])
-    )
-    suggestions = "".join(
-        f"<li>{item}</li>" for item in data.get("suggestions", [])
-    )
+def _render_html(data: dict[str, Any], platform: str, generated_at: datetime) -> str:
+    highlights = "".join(f"<li>{item}</li>" for item in data.get("highlights", []))
+    suggestions = "".join(f"<li>{item}</li>" for item in data.get("suggestions", []))
     return f"""<!doctype html>
 <html lang="zh-CN">
 <head>
@@ -97,17 +82,26 @@ def _render_html(
 """
 
 
-def generate_report(
-    session: Session, request: ReportRequest
-) -> AnalysisReport:
+def _save_files(report: AnalysisReport, data: dict[str, Any]) -> None:
+    settings = get_settings()
+    output_dir = Path(settings.report_output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    base = output_dir / f"report_{report.id}"
+    (output_dir / f"report_{report.id}.json").write_text(
+        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+    (output_dir / f"report_{report.id}.md").write_text(report.content, encoding="utf-8")
+    (output_dir / f"report_{report.id}.html").write_text(
+        _render_html(data, report.platform, report.created_at), encoding="utf-8"
+    )
+
+
+def generate_report(session: Session, request: ReportRequest) -> AnalysisReport:
     posts = _load_posts(session, request.platform)
     llm = LLMClient()
     data = llm.complete_json(
         [
-            {
-                "role": "system",
-                "content": "你是一名社媒数据分析师，擅长从内容中提炼趋势和建议。",
-            },
+            {"role": "system", "content": load_prompt("weekly_report.md")},
             {"role": "user", "content": _build_report_prompt(posts, request)},
         ]
     )
@@ -129,4 +123,10 @@ def generate_report(
     session.add(report)
     session.commit()
     session.refresh(report)
+    _save_files(report, data)
     return report
+
+
+def generate_weekly_report(session: Session, platform: str) -> AnalysisReport:
+    request = ReportRequest(platform=platform, style="weekly", format="markdown")
+    return generate_report(session, request)
