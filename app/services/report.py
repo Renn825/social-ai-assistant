@@ -1,5 +1,6 @@
 import json
-from datetime import date
+from datetime import date, datetime
+from typing import Any
 
 from sqlmodel import Session, select
 
@@ -36,6 +37,66 @@ def _build_report_prompt(
 """.strip()
 
 
+def _render_markdown(
+    data: dict[str, Any],
+    platform: str,
+    generated_at: datetime,
+) -> str:
+    highlights = "\n".join(
+        f"- {item}" for item in data.get("highlights", [])
+    )
+    suggestions = "\n".join(
+        f"- {item}" for item in data.get("suggestions", [])
+    )
+    return f"""# {data.get('title', platform + ' 分析报告')}
+
+生成时间：{generated_at.isoformat()}
+
+## 摘要
+
+{data.get('summary', '暂无摘要')}
+
+## 亮点
+
+{highlights or '- 暂无'}
+
+## 建议
+
+{suggestions or '- 暂无'}
+"""
+
+
+def _render_html(
+    data: dict[str, Any],
+    platform: str,
+    generated_at: datetime,
+) -> str:
+    highlights = "".join(
+        f"<li>{item}</li>" for item in data.get("highlights", [])
+    )
+    suggestions = "".join(
+        f"<li>{item}</li>" for item in data.get("suggestions", [])
+    )
+    return f"""<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <title>{data.get('title', platform + ' 分析报告')}</title>
+</head>
+<body>
+  <h1>{data.get('title', platform + ' 分析报告')}</h1>
+  <p>生成时间：{generated_at.isoformat()}</p>
+  <h2>摘要</h2>
+  <p>{data.get('summary', '暂无摘要')}</p>
+  <h2>亮点</h2>
+  <ul>{highlights or '<li>暂无</li>'}</ul>
+  <h2>建议</h2>
+  <ul>{suggestions or '<li>暂无</li>'}</ul>
+</body>
+</html>
+"""
+
+
 def generate_report(
     session: Session, request: ReportRequest
 ) -> AnalysisReport:
@@ -52,11 +113,18 @@ def generate_report(
     )
 
     report_date = request.report_date or date.today().isoformat()
+    generated_at = datetime.utcnow()
+    if request.format == "html":
+        content = _render_html(data, request.platform, generated_at)
+    else:
+        content = _render_markdown(data, request.platform, generated_at)
+
     report = AnalysisReport(
         title=data.get("title", f"{request.platform} {request.style} 报告"),
         platform=request.platform,
         report_date=report_date,
-        content=json.dumps(data, ensure_ascii=False, indent=2),
+        format=request.format,
+        content=content,
     )
     session.add(report)
     session.commit()
