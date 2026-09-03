@@ -7,6 +7,7 @@ from app.core.database import get_session
 from app.models.post import CrawlPost
 from app.models.task import CrawlTask, TaskStatus
 from app.schemas.post import CollectRequest, CrawlPostRead
+from app.schemas.task import CrawlTaskRead
 from app.services.crawler import collect_posts
 from app.services.pipeline import store_posts
 
