@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>社媒数据看板 · UI 原型（?variant=A/B/C）</title>
+<style>
+:root{
+  --bg:#eef1f6; --card:#ffffff; --line:#e5e7eb; --text:#111827;
+  --muted:#6b7280; --brand:#4f46e5; --brand-soft:#eef2ff;
+  --pos:#16a34a; --neu:#f59e0b; --neg:#ef4444;
+  --radius:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);
+  font-family:"PingFang SC","Microsoft YaHei","Segoe UI",system-ui,sans-serif;
+  font-size:14px;line-height:1.55;padding:28px 24px 84px}
+h1,h2,h3{font-weight:600}
+.muted{color:var(--muted)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:0 1px 2px rgba(16,24,40,.05)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 14px;
+  font-size:13px;cursor:pointer;color:var(--text)}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.btn:hover{filter:brightness(.97)}
+.badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:12px;
+  background:#f3f4f6;color:#374151;border:1px solid var(--line)}
+.badge.blue{background:var(--brand-soft);color:var(--brand);border-color:#c7d2fe}
+.chip{display:inline-block;padding:4px 12px;border-radius:999px;border:1px solid var(--line);
+  background:#fff;cursor:pointer;font-size:12px;color:var(--muted)}
+.chip.active{background:var(--brand);color:#fff;border-color:var(--brand)}
+.pos{color:var(--pos)} .neg{color:var(--neg)} .neu{color:var(--neu)}
+.tag{display:inline-block;font-size:11px;color:var(--brand);background:var(--brand-soft);
+  border-radius:5px;padding:1px 7px;margin:2px 4px 2px 0}
+.dot{width:9px;height:9px;border-radius:50%;display:inline-block}
+
+/* ---------- Variant A: 运营驾驶舱 ---------- */
+.vA{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.a-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.a-top h1{font-size:22px}
+.a-kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.kpi{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px}
+.kpi .label{font-size:12px;color:var(--muted)}
+.kpi .value{font-size:24px;font-weight:650;margin-top:4px}
+.kpi .delta{font-size:12px;margin-top:2px}
+.a-grid{display:grid;grid-template-columns:repeat(12,1fr);gap:14px}
+.chart-card{padding:16px 18px;grid-column:span 4}
+.chart-card.span8{grid-column:span 8}
+.chart-card h3,.list-card h3{font-size:14px;margin-bottom:12px}
+.bars{display:flex;align-items:flex-end;gap:8px;height:150px;padding-top:8px}
+.bar-col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:6px;
+  text-align:center;font-size:10px;color:var(--muted);min-width:0}
+.bar{background:linear-gradient(180deg,#6366f1,#4f46e5);border-radius:5px 5px 2px 2px;
+  min-height:2px;width:100%}
+.donut-wrap{display:flex;align-items:center;gap:18px}
+.legend{display:flex;flex-direction:column;gap:7px;font-size:12px}
+.legend .row{display:flex;align-items:center;gap:7px}
+.legend .val{margin-left:auto;font-weight:600}
+.hbar-row{display:flex;align-items:center;gap:10px;margin-bottom:11px;font-size:13px}
+.hbar-track{flex:1;background:#f3f4f6;border-radius:999px;height:10px;overflow:hidden}
+.hbar{height:100%;border-radius:999px;background:linear-gradient(90deg,#4f46e5,#818cf8)}
+.topic-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}
+.topic-row:last-child{border-bottom:none}
+.topic-rank{width:22px;height:22px;border-radius:6px;background:#f3f4f6;color:var(--muted);
+  display:flex;align-items:center;justify-content:center;font-size:12px;flex:none}
+.topic-rank.top{background:var(--brand);color:#fff}
+.p-table{width:100%;border-collapse:collapse;font-size:13px}
+.p-table th{color:var(--muted);font-weight:500;text-align:left;padding:7px 8px;
+  border-bottom:1px solid var(--line);white-space:nowrap}
+.p-table td{padding:9px 8px;border-bottom:1px solid #f1f2f4;vertical-align:top}
+.p-title{max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* ---------- Variant B: 内容工作台 ---------- */
+.vB{display:grid;grid-template-columns:228px minmax(0,1fr) 356px;gap:14px;max-width:1480px;margin:0 auto}
+.b-head{grid-column:1/-1;display:flex;justify-content:space-between;align-items:center}
+.b-head h1{font-size:20px}
+.b-side{padding:16px;align-self:start;position:sticky;top:16px}
+.b-side h3{font-size:13px;color:var(--muted);margin:16px 0 8px;font-weight:500}
+.b-side h3:first-child{margin-top:0}
+.b-side .chip{display:block;margin-bottom:6px}
+.b-side .chip.active{color:#fff}
+.b-main{display:flex;flex-direction:column;gap:12px;min-width:0}
+.b-toolbar{display:flex;gap:8px;align-items:center;padding:10px 12px;flex-wrap:wrap}
+.b-search{flex:1;min-width:180px;border:1px solid var(--line);border-radius:9px;
+  padding:7px 12px;font-size:13px;outline:none;background:#fff}
+.b-search:focus{border-color:var(--brand)}
+.b-count{font-size:12px;color:var(--muted);padding:0 4px}
+.b-table{padding:4px 0}
+.p-row{display:grid;grid-template-columns:minmax(0,2.2fr) 1.1fr 1fr .7fr .7fr;
+  gap:10px;padding:11px 14px;border-bottom:1px solid #f1f2f4;cursor:pointer;align-items:center}
+.p-row:hover{background:#f8fafc}
+.p-row.active{background:var(--brand-soft);box-shadow:inset 3px 0 0 var(--brand)}
+.p-row .t{font-weight:550;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;
+  -webkit-line-clamp:2;-webkit-box-orient:vertical}
+.p-row .meta{font-size:12px;color:var(--muted)}
+.b-detail{position:sticky;top:16px;align-self:start;padding:18px;display:flex;flex-direction:column;gap:14px}
+.b-detail h2{font-size:16px;line-height:1.4}
+.b-metrics{display:flex;gap:18px;font-size:12px;color:var(--muted);flex-wrap:wrap}
+.b-metrics b{color:var(--text);font-size:14px;display:block}
+.sent-bars{display:flex;height:8px;border-radius:999px;overflow:hidden;background:#f3f4f6}
+.sent-bars i{display:block}
+.comment-s{background:#f8fafc;border-radius:10px;padding:9px 11px;font-size:12px;
+  color:#374151;border:1px solid #eef0f4}
+.comment-s+.comment-s{margin-top:7px}
+
+/* ---------- Variant C: 报告中心 ---------- */
+.vC{max-width:1060px;margin:0 auto;display:flex;flex-direction:column;gap:16px}
+.c-top{display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.c-top h1{font-size:24px}
+.c-hero{display:grid;grid-template-columns:1.8fr 1fr;gap:24px;padding:26px 28px;
+  background:linear-gradient(135deg,#eef2ff 0%,#ffffff 55%,#ecfeff 100%);
+  border:1px solid #e0e7ff;border-radius:18px}
+.c-hero .kicker{font-size:12px;letter-spacing:.12em;color:var(--brand);font-weight:600}
+.c-hero h2{font-size:26px;margin:8px 0 6px;line-height:1.3}
+.c-hero .summary{font-size:14px;color:#374151;max-width:560px}
+.c-hero-actions{margin-top:18px;display:flex;gap:10px;flex-wrap:wrap}
+.c-hero-side{border-left:1px solid #e0e7ff;padding-left:24px;display:flex;
+  flex-direction:column;justify-content:center;gap:12px}
+.c-donut{display:flex;align-items:center;gap:14px}
+.c-gauge-num{font-size:30px;font-weight:700;color:var(--pos)}
+.c-insights{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.insight{padding:16px 18px}
+.insight .ico{font-size:18px}
+.insight h3{font-size:14px;margin:8px 0 6px}
+.insight p{font-size:13px;color:#374151}
+.c-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}
+.c-card{padding:18px}
+.c-card h3{font-size:14px;margin-bottom:12px}
+.hist-row{display:flex;align-items:center;gap:12px;padding:11px 0;
+  border-bottom:1px dashed var(--line)}
+.hist-row:last-child{border-bottom:none}
+.hist-row .fm{margin-left:auto;display:flex;gap:6px}
+.fm-b{font-size:10px;border:1px solid var(--line);border-radius:4px;padding:1px 5px;color:var(--muted)}
+.note{margin-top:4px;text-align:center;color:#9ca3af;font-size:12px}
+
+/* ---------- 浮动切换条（原型工具，非产品 UI） ---------- */
+#switcher{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:99;
+  display:flex;align-items:center;gap:6px;background:#111827;color:#fff;
+  padding:7px 10px;border-radius:999px;box-shadow:0 8px 24px rgba(0,0,0,.25);
+  font-size:13px;user-select:none}
+#switcher button{background:transparent;border:none;color:#fff;font-size:18px;
+  cursor:pointer;padding:0 8px;line-height:1}
+#switcher button:hover{color:#c7d2fe}
+#sw-label{min-width:150px;text-align:center;letter-spacing:.02em}
+#sw-tip{font-size:11px;color:#9ca3af;margin-left:8px;border-left:1px solid #374151;padding-left:8px}
+@media (max-width:1100px){
+  .a-kpis{grid-template-columns:repeat(3,1fr)}
+  .vB{grid-template-columns:1fr;padding:0}
+  .b-side,.b-detail{position:static}
+  .c-grid,.c-hero,.c-insights{grid-template-columns:1fr}
+  .c-hero-side{border-left:none;padding-left:0;border-top:1px solid #e0e7ff;padding-top:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- 变体 A -->
+<main class="vA" id="view-a" hidden>
+  <div class="a-top">
+    <div><h1>社媒数据总览</h1><div class="muted">小红书 / 抖音 · 数据截至 2026-09-04</div></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn primary" id="btn-a-report">生成周报</button>
+      <button class="btn">导出数据</button>
+    </div>
+  </div>
+  <div class="a-kpis" id="a-kpis"></div>
+  <div class="a-grid">
+    <section class="card chart-card span8">
+      <h3>近 14 天内容发布与互动趋势</h3>
+      <div class="bars" id="a-trend"></div>
+    </section>
+    <section class="card chart-card">
+      <h3>评论情感分布</h3>
+      <div class="donut-wrap" id="a-donut"></div>
+    </section>
+    <section class="card chart-card">
+      <h3>平台占比</h3>
+      <div id="a-platform" style="padding-top:8px"></div>
+    </section>
+    <section class="card chart-card">
+      <h3>热门主题 Top 5</h3>
+      <div id="a-topics"></div>
+    </section>
+    <section class="card chart-card span4">
+      <h3>最新帖子</h3>
+      <div id="a-latest"></div>
+    </section>
+  </div>
+  <div class="note">UI 原型 · 内置示例数据，非真实生产界面</div>
+</main>
+
+<!-- 变体 B -->
+<main class="vB" id="view-b" hidden>
+  <div class="b-head">
+    <div><h1>内容工作台</h1><div class="muted" id="b-count">共 0 条内容</div></div>
+    <button class="btn primary">+ 导入数据</button>
+  </div>
+  <aside class="card b-side">
+    <h3>平台</h3>
+    <div id="b-platform">
+      <span class="chip active" data-v="all">全部</span>
+      <span class="chip" data-v="小红书">小红书</span>
+      <span class="chip" data-v="抖音">抖音</span>
+    </div>
+    <h3>主导情感</h3>
+    <div id="b-sentiment">
+      <span class="chip active" data-v="all">全部</span>
+      <span class="chip" data-v="positive">正面</span>
+      <span class="chip" data-v="neutral">中性</span>
+      <span class="chip" data-v="negative">负面</span>
+    </div>
+    <h3>标签</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:4px" id="b-tags"></div>
+  </aside>
+  <section class="b-main">
+    <div class="card b-toolbar">
+      <input class="b-search" id="b-search" type="search" placeholder="搜索标题、作者、标签…">
+      <span class="b-count">按行点击查看 AI 分析详情</span>
+    </div>
+    <div class="card b-table">
+      <div class="p-row" style="cursor:default;color:var(--muted);font-size:12px">
+        <div>内容 / 摘要</div><div>平台</div><div>互动</div><div>情感</div><div>发布时间</div>
+      </div>
+      <div id="b-rows"></div>
+    </div>
+  </section>
+  <aside class="card b-detail" id="b-detail"></aside>
+  <div class="note" style="grid-column:1/-1">UI 原型 · 示例数据仅供版式验证</div>
+</main>
+
+<!-- 变体 C -->
+<main class="vC" id="view-c" hidden>
+  <div class="c-top">
+    <div><h1>报告中心</h1><div class="muted">周报生成与历史归档</div></div>
+    <button class="btn primary">生成本周报告</button>
+  </div>
+  <section class="c-hero">
+    <div>
+      <div class="kicker">WEEKLY REPORT · 2026-09-04</div>
+      <h2 id="c-title"></h2>
+      <p class="summary" id="c-summary"></p>
+      <div style="display:flex;gap:6px;margin-top:12px" id="c-formats"></div>
+      <div class="c-hero-actions">
+        <button class="btn primary">预览 HTML</button>
+        <button class="btn">下载 Markdown</button>
+        <button class="btn">下载 JSON</button>
+      </div>
+    </div>
+    <div class="c-hero-side">
+      <div class="c-donut" id="c-donut"></div>
+      <div class="muted" style="font-size:13px">评论情感：正面为主，负面占比低，适合持续产出效率工具类选题。</div>
+    </div>
+  </section>
+  <section class="c-insights" id="c-insights"></section>
+  <div class="c-grid">
+    <section class="card c-card">
+      <h3>主题热度与趋势</h3>
+      <div id="c-topics"></div>
+    </section>
+    <section class="card c-card">
+      <h3>历史报告</h3>
+      <div id="c-history"></div>
+    </section>
+  </div>
+  <div class="note">UI 原型 · 报告内容为示例输出</div>
+</main>
+
+<div id="switcher">
+  <button id="sw-prev" title="上一个变体">‹</button>
+  <span id="sw-label">A · 运营驾驶舱</span>
+  <button id="sw-next" title="下一个变体">›</button>
+  <span id="sw-tip">←/→ 切换 · ?variant=</span>
+</div>
+
+<script>
+/* ===== 示例数据：结构与真实 API/报告输出保持一致，内容为演示用 ===== */
+const DATA = {
+  kpis: [
+    { label: "收录帖子", value: "128", delta: "+12.4%", up: true },
+    { label: "关联评论", value: "356", delta: "+9.1%", up: true },
+    { label: "本周新增", value: "31", delta: "较上周 +6", up: true },
+    { label: "去重剔除", value: "23", delta: "重复内容", up: false },
+    { label: "平均互动", value: "1,843", delta: "+5.2%", up: true },
+    { label: "正面情感", value: "62%", delta: "中位线以上", up: true }
+  ],
+  trend: [
+    { d: "08-22", v: 42 }, { d: "08-23", v: 48 }, { d: "08-24", v: 45 },
+    { d: "08-25", v: 61 }, { d: "08-26", v: 58 }, { d: "08-27", v: 66 },
+    { d: "08-28", v: 72 }, { d: "08-29", v: 69 }, { d: "08-30", v: 81 },
+    { d: "08-31", v: 77 }, { d: "09-01", v: 90 }, { d: "09-02", v: 86 },
+    { d: "09-03", v: 98 }, { d: "09-04", v: 104 }
+  ],
+  sentiment: { positive: 62, neutral: 24, negative: 14 },
+  platform: [ { name: "小红书", share: 68 }, { name: "抖音", share: 32 } ],
+  topics: [
+    { t: "效率工具", n: 24 }, { t: "自动化办公", n: 18 }, { t: "AI 内容生成", n: 15 },
+    { t: "副业与自由职业", n: 11 }, { t: "本地生活探店", n: 9 }
+  ],
+  posts: [
+    { id: 1, platform: "小红书", title: "用 Notion 搭好 AI 素材库，内容产出效率翻倍",
+      author: "小鹿同学", tags: ["效率工具", "Notion", "AI"], likes: 3268, comments: 412,
+      published_at: "2026-09-04 09:20", dominant: "positive",
+      summary: "一套把灵感、素材、成稿串起来的 Notion 模板，配合 AI 打标让选题复用率明显提升。",
+      sentiment: { positive: 71, neutral: 20, negative: 9 },
+      samples: ["模板结构讲得很清楚，已抄作业", "求标签体系细节", "AI 打标准确率怎么样？"] },
+    { id: 2, platform: "小红书", title: "DeepSeek 写周报实操：10 分钟搞定一周总结",
+      author: "产品狗阿哲", tags: ["AI", "办公自动化", "周报"], likes: 2180, comments: 305,
+      published_at: "2026-09-03 21:05", dominant: "positive",
+      summary: "用结构化提示词让模型先归纳再润色，输出可直接交给主管的周报，重点是留出人工核对环节。",
+      sentiment: { positive: 65, neutral: 27, negative: 8 },
+      samples: ["提示词能分享吗？", "周报模板求一个", "和 Copilot 比哪个好用"] },
+    { id: 3, platform: "抖音", title: "打工人副业避坑指南：AI 绘画接单的真实收入",
+      author: "阿凯不加班", tags: ["副业与自由职业", "AI 绘画"], likes: 8930, comments: 1204,
+      published_at: "2026-09-03 18:40", dominant: "neutral",
+      summary: "用真实账单拆解 AI 绘画接单的时薪、客源和平台抽成，提醒把时间花在交付流程上。",
+      sentiment: { positive: 44, neutral: 42, negative: 14 },
+      samples: ["报价单能不能出个模板", "说得实在，收藏了", "平台抽成这么高吗"] },
+    { id: 4, platform: "小红书", title: "我把公众号排版流程自动化了",
+      author: "Momo 运营日记", tags: ["自动化办公", "公众号"], likes: 1560, comments: 178,
+      published_at: "2026-09-02 12:30", dominant: "positive",
+      summary: "从草稿到推送的自动化排版链路：模板解析、样式注入、错别字检查一次完成。",
+      sentiment: { positive: 78, neutral: 15, negative: 7 },
+      samples: ["教程太及时了", "想看你用的工具清单", "敏感词检查怎么做的"] },
+    { id: 5, platform: "抖音", title: "沉浸式体验：AI 数字人做探店解说",
+      author: "城市漫游手册", tags: ["本地生活探店", "AI 内容生成"], likes: 12400, comments: 2301,
+      published_at: "2026-09-02 08:15", dominant: "neutral",
+      summary: "AI 数字人讲探店脚本的完整效果展示，评论区对“真人感”的讨论最热烈。",
+      sentiment: { positive: 41, neutral: 46, negative: 13 },
+      samples: ["数字人还是有点僵硬", "脚本写得不错", "这是哪家的方案"] },
+    { id: 6, platform: "小红书", title: "效率工具周报：本周值得试的 5 个 AI 神器",
+      author: "工具猎人", tags: ["效率工具", "AI"], likes: 4320, comments: 520,
+      published_at: "2026-09-01 10:00", dominant: "positive",
+      summary: "按“免费额度、上手成本、适用场景”三个维度评测五款 AI 工具，给出推荐结论。",
+      sentiment: { positive: 69, neutral: 23, negative: 8 },
+      samples: ["正好缺这个盘点", "第二个真的免费吗", "蹲一个视频版"] },
+    { id: 7, platform: "抖音", title: "别再手动回评论了：用 AI 给评论做情感分类",
+      author: "运营老张", tags: ["办公自动化", "AI"], likes: 6750, comments: 980,
+      published_at: "2026-08-31 19:22", dominant: "positive",
+      summary: "把评论按正面/中性/负面分流，负面优先人工处理，演示一套低成本实现方案。",
+      sentiment: { positive: 58, neutral: 30, negative: 12 },
+      samples: ["负面自动提醒这个点好", "接口成本高吗", "求完整代码"] },
+    { id: 8, platform: "小红书", title: "内容团队协作：一张看板管完所有选题",
+      author: "柚子组长", tags: ["效率工具", "内容团队"], likes: 1940, comments: 231,
+      published_at: "2026-08-30 14:48", dominant: "positive",
+      summary: "选题库、排期、数据回流放在同一张看板上的协作方法，减少群里来回确认。",
+      sentiment: { positive: 73, neutral: 19, negative: 8 },
+      samples: ["看板字段怎么设计的", "小团队适用吗", "求模板链接"] }
+  ],
+  report: {
+    title: "AI 工具话题周报",
+    date: "2026-09-04",
+    summary: "本周 AI 工具相关内容热度较高，用户关注点集中在效率提升、自动化办公与内容生成三个方向；互动量前三的内容均与“可复制的实操流程”相关。",
+    highlights: [
+      { ico: "🔥", title: "效率工具内容互动量最高", text: "素材库、看板、自动化排版等“可抄作业”型内容收藏率显著高于纯资讯。" },
+      { ico: "📈", title: "自动化办公需求增长", text: "周报、评论分流、排版自动化等场景搜索与互动同步上升。" },
+      { ico: "💡", title: "内容生成选题仍有空间", text: "数字人与 AI 绘画的讨论集中在真实感与收益透明度，适合做深度实测。" }
+    ],
+    suggestions: [
+      "增加真实案例拆解，减少纯功能介绍",
+      "制作入门到进阶的实操流程，沉淀为系列内容",
+      "补充成本与效果对比，回应评论区高频疑问"
+    ],
+    formats: ["Markdown", "HTML", "JSON"]
+  },
+  history: [
+    { id: 2, title: "AI 工具话题周报", date: "2026-09-04", platform: "小红书", fm: ["md", "html", "json"] },
+    { id: 1, title: "效率工具内容周报", date: "2026-08-28", platform: "小红书", fm: ["md", "html", "json"] }
+  ]
+};
+
+const VARIANTS = [
+  { k: "A", label: "运营驾驶舱" },
+  { k: "B", label: "内容工作台" },
+  { k: "C", label: "报告中心" }
+];
+
+function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+  return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
+
+/* ---------- 通用小组件 ---------- */
+function donutHTML(seg, size){  // seg: [{v,color}]
+  const r = 52, c = 2 * Math.PI * r;
+  let acc = 0, circles = "";
+  seg.forEach(function(s){
+    const len = s.v / 100 * c;
+    circles += '<circle r="' + r + '" cx="60" cy="60" fill="none" stroke="' + s.color +
+      '" stroke-width="14" stroke-dasharray="' + len.toFixed(1) + ' ' + (c - len).toFixed(1) +
+      '" stroke-dashoffset="' + (-acc).toFixed(1) + '" transform="rotate(-90 60 60)"></circle>';
+    acc += len;
+  });
+  return '<svg width="120" height="120" viewBox="0 0 120 120" style="flex:none">' +
+    '<circle r="52" cx="60" cy="60" fill="none" stroke="#f3f4f6" stroke-width="14"></circle>' +
+    circles + "</svg>";
+}
+
+/* ---------- 变体 A：运营驾驶舱 ---------- */
+function renderA(){
+  const k = DATA.kpis;
+  document.getElementById("a-kpis").innerHTML = k.map(function(x){
+    return '<div class="kpi"><div class="label">' + x.label + '</div><div class="value">' + x.value +
+      '</div><div class="delta ' + (x.up ? "pos" : "muted") + '">' + x.delta + "</div></div>";
+  }).join("");
+  const max = Math.max.apply(null, DATA.trend.map(function(t){ return t.v; }));
+  document.getElementById("a-trend").innerHTML = DATA.trend.map(function(t){
+    const h = Math.round(t.v / max * 100);
+    return '<div class="bar-col"><div class="bar" style="height:' + h +
+      '%" title="' + t.d + "：" + t.v + '"></div><span>' + t.d.slice(3) + "</span></div>";
+  }).join("");
+  document.getElementById("a-donut").innerHTML =
+    donutHTML([
+      { v: DATA.sentiment.positive, color: "#16a34a" },
+      { v: DATA.sentiment.neutral, color: "#f59e0b" },
+      { v: DATA.sentiment.negative, color: "#ef4444" }
+    ]) +
+    '<div class="legend">' +
+    '<div class="row"><span class="dot" style="background:#16a34a"></span>正面 <span class="val">' + DATA.sentiment.positive + "%</span></div>" +
+    '<div class="row"><span class="dot" style="background:#f59e0b"></span>中性 <span class="val">' + DATA.sentiment.neutral + "%</span></div>" +
+    '<div class="row"><span class="dot" style="background:#ef4444"></span>负面 <span class="val">' + DATA.sentiment.negative + "%</span></div></div>";
+  const pMax = Math.max.apply(null, DATA.platform.map(function(p){ return p.share; }));
+  document.getElementById("a-platform").innerHTML = DATA.platform.map(function(p){
+    return '<div class="hbar-row"><span style="width:48px">' + p.name +
+      '</span><span class="hbar-track"><span class="hbar" style="width:' +
+      Math.round(p.share / pMax * 100) + '%"></span></span><b>' + p.share + "%</b></div>";
+  }).join("");
+  document.getElementById("a-topics").innerHTML = DATA.topics.map(function(x, i){
+    return '<div class="topic-row"><span class="topic-rank' + (i < 3 ? " top" : "") + '">' +
+      (i + 1) + "</span><span style='flex:1'>" + x.t +
+      '</span><span class="muted">' + x.n + " 篇</span></div>";
+  }).join("");
+  document.getElementById("a-latest").innerHTML =
+    '<table class="p-table"><thead><tr><th>标题</th><th>互动</th><th>平台</th></tr></thead><tbody>' +
+    DATA.posts.slice(0, 6).map(function(p){
+      return "<tr><td><div class='p-title' title='" + esc(p.title) + "'>" + esc(p.title) +
+        '</div><div class="muted" style="font-size:11px">' + esc(p.published_at) + "</div></td><td>" +
+        p.likes.toLocaleString() + "</td><td>" + p.platform + "</td></tr>";
+    }).join("") + "</tbody></table>";
+}
+
+/* ---------- 变体 B：内容工作台 ---------- */
+const BState = { platform: "all", sentiment: "all", tag: "all", q: "", activeId: DATA.posts[0].id };
+
+function bFiltered(){
+  return DATA.posts.filter(function(p){
+    if (BState.platform !== "all" && p.platform !== BState.platform) return false;
+    if (BState.sentiment !== "all" && p.dominant !== BState.sentiment) return false;
+    if (BState.tag !== "all" && p.tags.indexOf(BState.tag) < 0) return false;
+    const q = BState.q.trim().toLowerCase();
+    if (q){
+      const hay = (p.title + p.author + p.tags.join(" ")).toLowerCase();
+      if (hay.indexOf(q) < 0) return false;
+    }
+    return true;
+  });
+}
+
+function renderB(){
+  const rows = bFiltered();
+  document.getElementById("b-count").textContent = "共 " + rows.length + " 条内容";
+  const tagSet = [];
+  DATA.posts.forEach(function(p){ p.tags.forEach(function(t){
+    if (tagSet.indexOf(t) < 0) tagSet.push(t); }); });
+  document.getElementById("b-tags").innerHTML =
+    '<span class="tag" style="cursor:pointer;' + (BState.tag === "all" ? "outline:2px solid var(--brand)" : "") +
+    '" data-tag="all">全部</span>' + tagSet.slice(0, 9).map(function(t){
+      return '<span class="tag" style="cursor:pointer;' + (BState.tag === t ? "outline:2px solid var(--brand)" : "") +
+        '" data-tag="' + esc(t) + '">' + esc(t) + "</span>";
+    }).join("");
+  document.getElementById("b-rows").innerHTML = rows.map(function(p){
+    const d = p.dominant;
+    const color = d === "positive" ? "var(--pos)" : d === "negative" ? "var(--neg)" : "var(--neu)";
+    return '<div class="p-row' + (p.id === BState.activeId ? " active" : "") + '" data-id="' + p.id + '">' +
+      '<div><div class="t">' + esc(p.title) + '</div><div class="meta">' + esc(p.summary) +
+      "</div></div><div><span class='badge blue'>" + p.platform + "</span></div>" +
+      "<div>" + p.likes.toLocaleString() + " 👍 " + p.comments + " 💬</div>" +
+      '<div><span class="dot" style="background:' + color + '"></span> ' +
+      (d === "positive" ? "正面" : d === "negative" ? "负面" : "中性") + "</div>" +
+      '<div class="meta">' + esc(p.published_at) + "</div></div>";
+  }).join("") || '<div style="padding:30px;text-align:center;color:var(--muted)">没有匹配的内容</div>';
+  const active = DATA.posts.filter(function(p){ return p.id === BState.activeId; })[0] || rows[0];
+  renderBDetail(active);
+  if (rows.length && document.querySelector('.p-row[data-id="' + (active ? active.id : "") + '"]')){
+    document.querySelector('.p-row[data-id="' + active.id + '"]').scrollIntoView({ block: "nearest" });
+  }
+}
+
+function renderBDetail(p){
+  if (!p) return;
+  const s = p.sentiment;
+  const h = '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">' +
+    '<h2>' + esc(p.title) + "</h2><span class='badge blue'>" + p.platform + "</span></div>" +
+    '<div class="muted">' + esc(p.author) + " · " + esc(p.published_at) + "</div>" +
+    '<div>' + p.tags.map(function(t){ return '<span class="tag">' + esc(t) + "</span>"; }).join("") + "</div>" +
+    '<div class="b-metrics"><div><b>' + p.likes.toLocaleString() + "</b>点赞</div>" +
+    '<div><b>' + p.comments + "</b>评论</div>" +
+    '<div><b>' + p.sentiment.positive + "%</b>正面占比</div></div>" +
+    "<div><h3 style='font-size:13px;margin-bottom:6px'>AI 摘要</h3>" +
+    '<div class="card" style="padding:10px 12px;font-size:13px">' + esc(p.summary) + "</div></div>" +
+    "<div><h3 style='font-size:13px;margin-bottom:6px'>评论情感</h3>" +
+    '<div class="sent-bars"><i style="width:' + s.positive + '%;background:#16a34a"></i>' +
+    '<i style="width:' + s.neutral + '%;background:#f59e0b"></i>' +
+    '<i style="width:' + s.negative + '%;background:#ef4444"></i></div>' +
+    '<div class="muted" style="font-size:12px;margin-top:5px">正面 ' + s.positive + "% · 中性 " +
+    s.neutral + "% · 负面 " + s.negative + "%</div></div>" +
+    "<div><h3 style='font-size:13px;margin-bottom:6px'>代表性评论</h3>" +
+    p.samples.map(function(c){ return '<div class="comment-s">' + esc(c) + "</div>"; }).join("") + "</div>";
+  document.getElementById("b-detail").innerHTML = h;
+}
+
+/* ---------- 变体 C：报告中心 ---------- */
+function renderC(){
+  const r = DATA.report;
+  document.getElementById("c-title").textContent = r.title + " · " + r.date;
+  document.getElementById("c-summary").textContent = r.summary;
+  document.getElementById("c-formats").innerHTML = r.formats.map(function(f){
+    return '<span class="badge blue">' + f + "</span>"; }).join("");
+  document.getElementById("c-donut").innerHTML =
+    donutHTML([
+      { v: DATA.sentiment.positive, color: "#16a34a" },
+      { v: DATA.sentiment.neutral, color: "#f59e0b" },
+      { v: DATA.sentiment.negative, color: "#ef4444" }
+    ]) +
+    '<div><div class="c-gauge-num">' + DATA.sentiment.positive + "%</div>" +
+    '<div class="muted">正面情感占比</div></div>';
+  document.getElementById("c-insights").innerHTML = r.highlights.map(function(h){
+    return '<section class="card insight"><div class="ico">' + h.ico + '</div><h3>' + esc(h.title) +
+      "</h3><p>" + esc(h.text) + "</p></section>";
+  }).join("");
+  const tMax = DATA.topics[0].n;
+  document.getElementById("c-topics").innerHTML = DATA.topics.map(function(x){
+    return '<div class="hbar-row"><span style="width:92px">' + esc(x.t) +
+      '</span><span class="hbar-track"><span class="hbar" style="width:' +
+      Math.round(x.n / tMax * 100) + '%"></span></span><b>' + x.n + "</b></div>";
+  }).join("");
+  document.getElementById("c-history").innerHTML = DATA.history.map(function(h){
+    return '<div class="hist-row"><div><div style="font-weight:550">' + esc(h.title) +
+      '</div><div class="muted" style="font-size:12px">' + h.platform + " · " + h.date +
+      '</div></div><div class="fm">' + h.fm.map(function(f){
+        return '<span class="fm-b">' + f.toUpperCase() + "</span>"; }).join("") +
+      '</div><div style="display:flex;gap:8px"><a class="muted" style="font-size:12px" href="#">预览</a>' +
+      '<a class="muted" style="font-size:12px" href="#">下载</a></div></div>';
+  }).join("");
+}
+
+/* ---------- 切换逻辑 ---------- */
+let current = "A";
+const VIEWS = { A: "view-a", B: "view-b", C: "view-c" };
+
+function variantFromURL(){
+  let v = new URLSearchParams(location.search).get("variant");
+  if (!v && location.hash.indexOf("variant=") >= 0){
+    v = location.hash.split("variant=")[1];
+  }
+  v = String(v || "").toUpperCase();
+  return VARIANTS.some(function(x){ return x.k === v; }) ? v : "A";
+}
+
+function showVariant(k, push){
+  current = k;
+  Object.keys(VIEWS).forEach(function(key){
+    document.getElementById(VIEWS[key]).hidden = key !== k;
+  });
+  const info = VARIANTS.filter(function(x){ return x.k === k; })[0];
+  document.getElementById("sw-label").textContent = k + " · " + info.label;
+  if (k === "A") renderA();
+  if (k === "B") renderB();
+  if (k === "C") renderC();
+  if (push){
+    try {
+      history.replaceState(null, "", "?variant=" + k);
+    } catch (e) {
+      try { location.hash = "variant=" + k; } catch (e2) {}
+    }
+  }
+}
+
+function step(dir){
+  let idx = VARIANTS.findIndex(function(x){ return x.k === current; });
+  idx = (idx + dir + VARIANTS.length) % VARIANTS.length;
+  showVariant(VARIANTS[idx].k, true);
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  document.getElementById("sw-prev").addEventListener("click", function(){ step(-1); });
+  document.getElementById("sw-next").addEventListener("click", function(){ step(1); });
+  document.addEventListener("keydown", function(e){
+    const t = e.target;
+    if (t && (t.tagName === "INPUT" || t.tagName === "TEXTAREA" || t.isContentEditable)) return;
+    if (e.key === "ArrowLeft") { e.preventDefault(); step(-1); }
+    if (e.key === "ArrowRight") { e.preventDefault(); step(1); }
+  });
+  document.getElementById("btn-a-report").addEventListener("click", function(){
+    alert("原型演示：正式版将调用 POST /api/v1/reports/weekly 生成周报。");
+  });
+  document.getElementById("b-platform").addEventListener("click", function(e){
+    const el = e.target.closest(".chip"); if (!el) return;
+    BState.platform = el.dataset.v;
+    Array.prototype.forEach.call(this.children, function(c){
+      c.classList.toggle("active", c === el); });
+    renderB();
+  });
+  document.getElementById("b-sentiment").addEventListener("click", function(e){
+    const el = e.target.closest(".chip"); if (!el) return;
+    BState.sentiment = el.dataset.v;
+    Array.prototype.forEach.call(this.children, function(c){
+      c.classList.toggle("active", c === el); });
+    renderB();
+  });
+  document.getElementById("b-tags").addEventListener("click", function(e){
+    const el = e.target.closest("[data-tag]"); if (!el) return;
+    BState.tag = el.dataset.tag;
+    renderB();
+  });
+  document.getElementById("b-search").addEventListener("input", function(e){
+    BState.q = e.target.value;
+    renderB();
+  });
+  document.getElementById("b-rows").addEventListener("click", function(e){
+    const row = e.target.closest(".p-row"); if (!row) return;
+    BState.activeId = Number(row.dataset.id);
+    renderB();
+  });
+  showVariant(variantFromURL(), false);
+});
+</script>
+</body>
+</html>
