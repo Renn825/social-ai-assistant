@@ -13,3 +13,17 @@
    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
 
 4. pre-commit hook 会自动运行完整测试；测试失败会阻止提交。
+
+## Agent skills
+
+### Issue tracker
+
+Issues live as GitHub issues in `Renn825/social-ai-assistant`. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+The five canonical triage roles map to their own names (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: one `CONTEXT.md` at the repo root plus `docs/adr/`. See `docs/agents/domain.md`.
