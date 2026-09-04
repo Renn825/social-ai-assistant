@@ -1,0 +1,14 @@
+#!/bin/sh
+# Run project tests before every commit.
+set -e
+
+if [ -x ".venv/Scripts/python.exe" ]; then
+  PY=".venv/Scripts/python.exe"
+elif [ -x ".venv/bin/python" ]; then
+  PY=".venv/bin/python"
+else
+  PY="python"
+fi
+
+echo "Running tests before commit..."
+"$PY" -m pytest -q
